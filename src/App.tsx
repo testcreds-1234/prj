@@ -6,10 +6,10 @@ import ProjectDetailsModal from './components/ProjectDetailsModal';
 import FilterBar from './components/FilterBar';
 import ChatBot from './components/ChatBot';
 import { Project } from './types/project';
-import { useLocalStorage } from './hooks/useLocalStorage';
+import { useProjects } from './hooks/useProjects';
 
 const App: React.FC = () => {
-  const [projects, setProjects] = useLocalStorage<Project[]>('projects', []);
+  const { projects, loading, error, addProject, updateProject, deleteProject } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,19 +41,29 @@ const App: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSaveProject = (project: Project) => {
-    if (editingProject) {
-      setProjects(prev => prev.map(p => p.id === project.id ? project : p));
-    } else {
-      setProjects(prev => [...prev, project]);
+  const handleSaveProject = async (project: Project) => {
+    try {
+      if (editingProject) {
+        await updateProject(project);
+      } else {
+        await addProject(project);
+      }
+      setIsModalOpen(false);
+      setEditingProject(null);
+    } catch (error) {
+      console.error('Error saving project:', error);
+      // You could add a toast notification here
     }
-    setIsModalOpen(false);
-    setEditingProject(null);
   };
 
-  const handleDeleteProject = (id: string) => {
+  const handleDeleteProject = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
-      setProjects(prev => prev.filter(p => p.id !== id));
+      try {
+        await deleteProject(id);
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        // You could add a toast notification here
+      }
     }
   };
 
@@ -69,6 +79,13 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mx-4 mt-4">
+          <strong className="font-bold">Error: </strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+      
       <Header 
         onAddProject={handleAddProject}
         searchQuery={searchQuery}
@@ -84,7 +101,16 @@ const App: React.FC = () => {
           onClearFilters={handleClearFilters}
         />
         
-        {filteredProjects.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="w-16 h-16 bg-[#B9B9B9] rounded-full flex items-center justify-center mx-auto mb-4 animate-spin">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Loading projects...</h3>
+          </div>
+        ) : filteredProjects.length === 0 ? (
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-[#B9B9B9] rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

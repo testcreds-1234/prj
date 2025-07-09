@@ -80,8 +80,8 @@ const AddEditProjectModal: React.FC<AddEditProjectModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newProject: Project = {
-      id: project?.id || Date.now().toString(),
+    const projectData = {
+      ...(project?.id && { id: project.id }),
       name: formData.name || '',
       details: formData.details || '',
       division: formData.division || '',
@@ -94,9 +94,8 @@ const AddEditProjectModal: React.FC<AddEditProjectModalProps> = ({
       milestoneDate: isTBD ? 'TBD' : (formData.milestoneDate || ''),
       gitlabLinks: formData.gitlabLinks || []
     };
-    onSave(newProject);
-    onClose();
-    resetForm();
+    
+    onSave(projectData as Project);
   };
 
   const handleBusinessSponsorToggle = (value: string) => {
