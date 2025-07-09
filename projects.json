@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "name": "dummy1",
+    "details": "lorem ipsum",
+    "division": "dumm1",
+    "stakeholder": "ve",
+    "businessSponsor": [
+      "John Doe",
+      "Jane Smith"
+    ],
+    "developer": [
+      "Alice Brown",
+      "Bob Davis"
+    ],
+    "status": [
+      "Planning"
+    ],
+    "statusDetails": "evrv3qv",
+    "nextSteps": "ervq",
+    "milestoneDate": "2025-07-17",
+    "gitlabLinks": [],
+    "id": "1752043670367"
+  }
+]
